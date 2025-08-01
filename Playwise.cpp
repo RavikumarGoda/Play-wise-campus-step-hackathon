@@ -1,20 +1,5 @@
 // PlayWise Core Playlist Engine - C++ Implementation
-// Author: Brodi (Ravi Kumar Reddy Goda)
-// Description: Complete implementation of all 7 core modules + 2 bonus modules for the PlayWise Hackathon.
-
-#include <iostream>
-#include <string>
-#include <stack>
-#include <unordered_map>
-#include <vector>
-#include <algorithm>
-using namespace std;
-
-//----------------------------------
-// Module 1: Playlist using Doubly Linked List
-//----------------------------------
-// PlayWise Core Playlist Engine - C++ Implementation
-// Author: Brodi (Ravi Kumar Reddy Goda)
+// Author: (Ravi Kumar Reddy Goda)
 // Description: Complete implementation of all 7 core modules + 2 bonus modules for the PlayWise Hackathon.
 // Includes: Time/Space complexities & clean modular documentation
 
@@ -30,6 +15,7 @@ using namespace std;
 // Module 1: Playlist using Doubly Linked List
 //----------------------------------
 // DS Used: Doubly Linked List
+// Why: Enables O(1) insertion, deletion, and movement in both directions, perfect for dynamic playlists
 // Time Complexity:
 // - Add/Delete/Move: O(1)
 // - Display: O(n)
@@ -194,6 +180,7 @@ int Playlist::songCounter = 1;
 // Module 2: Playback History using Stack
 //----------------------------------
 // DS Used: Stack
+// Why: LIFO order matches undo functionality, perfect for tracking last played song
 // Time Complexity: O(1)
 
 stack<Song *> playbackHistory;
@@ -217,6 +204,7 @@ void undo_last_play(Playlist &playlist)
 // Module 3: Song Rating Tree (BST)
 //----------------------------------
 // DS Used: Binary Search Tree
+// Why: BST supports efficient sorted rating storage & retrieval for dynamic inserts/searches
 // Time Complexity:
 // - Insert: O(log n) avg, O(n) worst
 // - Inorder Display: O(n)
@@ -280,6 +268,7 @@ public:
 // Module 4: Instant Lookup (HashMap)
 //----------------------------------
 // DS Used: unordered_map
+// Why: Provides average-case constant-time lookups for song metadata by ID or title
 // Time Complexity: O(1) avg, O(n) worst
 
 Song *lookup_song_by_title(const string &title)
@@ -299,7 +288,8 @@ Song *lookup_song_by_id(int id)
 //----------------------------------
 // Module 5: Sorting Module
 //----------------------------------
-// DS Used: vector + sort
+// DS Used: vector + sort (STL)
+// Why: Sorting on vectors is simple and fast with built-in sort — great for snapshot exports and ordering
 // Time Complexity: O(n log n)
 
 void sort_by_title(vector<Song *> &songs)
@@ -322,11 +312,13 @@ void sort_by_duration(vector<Song *> &songs, bool ascending = true)
 // - Pointer-based list for O(1) adds/moves
 // - HashMaps for O(1) lookups
 // - Static ID assignment without extra memory
+// Why: Prioritizing performance and memory use for real-time CLI playback simulation
 
 //----------------------------------
 // Module 7: System Snapshot
 //----------------------------------
 // Outputs top 5 longest songs
+// Why: Snapshot reports help summarize playlist contents quickly
 // Time Complexity: O(n log n)
 
 void export_snapshot(Playlist &playlist)
@@ -344,6 +336,7 @@ void export_snapshot(Playlist &playlist)
 // Bonus Module 1: Offline Playlist Caching
 //----------------------------------
 // Caches Top-N longest songs
+// Why: Caching improves UX in offline mode — good for performance preview features
 // Time Complexity: O(n log n)
 
 void cache_top_n_songs(Playlist &playlist, int N)
@@ -361,6 +354,7 @@ void cache_top_n_songs(Playlist &playlist, int N)
 // Bonus Module 2: Genre Rebalancer
 //----------------------------------
 // Analyzes genre distribution
+// Why: Encourages diversity by identifying genre imbalance using frequency % analysis
 // Time Complexity: O(n)
 
 void genre_rebalance(Playlist &playlist)
