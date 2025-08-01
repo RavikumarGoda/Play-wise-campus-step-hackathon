@@ -38,8 +38,8 @@ Modular, interactive CLI playlist manager built in modern C++ — developed for 
 | Module | Description |
 |--------|-------------|
 | **Offline Caching** | Cache top-N longest songs for offline mode. |
-| **Genre Rebalancer** | Analyze and display genre distribution in your playlist. |
-| **Play Song** | Simulates song playback and pushes it to playback history. |
+| **Genre Rebalancer** | Analyze genre distribution and recommend balance if one genre dominates. |
+| **Play Song** | Simulates song playback and pushes it to playback history for undo functionality. |
 
 ---
 
