@@ -14,36 +14,30 @@ using namespace std;
 // Module 1: Playlist using Doubly Linked List
 //----------------------------------
 
-struct Song
-{
+struct Song {
     string title, artist, genre;
     int duration; // in seconds
-    Song *prev;
-    Song *next;
+    Song* prev;
+    Song* next;
     int id; // Unique identifier
     Song(string t, string a, string g, int d, int i) : title(t), artist(a), genre(g), duration(d), prev(NULL), next(NULL), id(i) {}
 };
 
-unordered_map<string, Song *> songMapByTitle;
-unordered_map<int, Song *> songMapByID;
+unordered_map<string, Song*> songMapByTitle;
+unordered_map<int, Song*> songMapByID;
 
-class Playlist
-{
+class Playlist {
 private:
-    Song *head;
-    Song *tail;
+    Song* head;
+    Song* tail;
     static int songCounter;
-
 public:
     Playlist() : head(NULL), tail(NULL) {}
 
-    void add_song(string title, string artist, string genre, int duration)
-    {
-        Song *newSong = new Song(title, artist, genre, duration, songCounter++);
-        if (!head)
-            head = tail = newSong;
-        else
-        {
+    void add_song(string title, string artist, string genre, int duration) {
+        Song* newSong = new Song(title, artist, genre, duration, songCounter++);
+        if (!head) head = tail = newSong;
+        else {
             tail->next = newSong;
             newSong->prev = tail;
             tail = newSong;
@@ -52,81 +46,60 @@ public:
         songMapByTitle[title] = newSong;
     }
 
-    void delete_song(int index)
-    {
-        Song *temp = head;
+    void delete_song(int index) {
+        Song* temp = head;
         int i = 0;
-        while (temp && i < index)
-        {
+        while (temp && i < index) {
             temp = temp->next;
             i++;
         }
-        if (!temp)
-            return;
+        if (!temp) return;
         songMapByID.erase(temp->id);
         songMapByTitle.erase(temp->title);
-        if (temp->prev)
-            temp->prev->next = temp->next;
-        if (temp->next)
-            temp->next->prev = temp->prev;
-        if (temp == head)
-            head = temp->next;
-        if (temp == tail)
-            tail = temp->prev;
+        if (temp->prev) temp->prev->next = temp->next;
+        if (temp->next) temp->next->prev = temp->prev;
+        if (temp == head) head = temp->next;
+        if (temp == tail) tail = temp->prev;
         delete temp;
     }
 
-    void move_song(int from, int to)
-    {
-        if (from == to)
-            return;
-        Song *temp = head;
+    void move_song(int from, int to) {
+        if (from == to) return;
+        Song* temp = head;
         int i = 0;
-        while (temp && i < from)
-        {
+        while (temp && i < from) {
             temp = temp->next;
             i++;
         }
-        if (!temp)
-            return;
+        if (!temp) return;
 
-        if (temp->prev)
-            temp->prev->next = temp->next;
-        if (temp->next)
-            temp->next->prev = temp->prev;
-        if (temp == head)
-            head = temp->next;
-        if (temp == tail)
-            tail = temp->prev;
+        if (temp->prev) temp->prev->next = temp->next;
+        if (temp->next) temp->next->prev = temp->prev;
+        if (temp == head) head = temp->next;
+        if (temp == tail) tail = temp->prev;
 
-        Song *dest = head;
+        Song* dest = head;
         i = 0;
-        while (dest && i < to)
-        {
+        while (dest && i < to) {
             dest = dest->next;
             i++;
         }
-        if (!dest)
-        {
+        if (!dest) {
             add_song(temp->title, temp->artist, temp->genre, temp->duration);
             delete temp;
             return;
         }
-        if (dest->prev)
-            dest->prev->next = temp;
+        if (dest->prev) dest->prev->next = temp;
         temp->prev = dest->prev;
         temp->next = dest;
         dest->prev = temp;
-        if (to == 0)
-            head = temp;
+        if (to == 0) head = temp;
     }
 
-    void reverse_playlist()
-    {
-        Song *curr = head;
+    void reverse_playlist() {
+        Song* curr = head;
         Song *prev = NULL, *next = NULL;
-        while (curr)
-        {
+        while (curr) {
             next = curr->next;
             curr->next = prev;
             curr->prev = next;
@@ -136,22 +109,18 @@ public:
         swap(head, tail);
     }
 
-    void display()
-    {
-        Song *curr = head;
-        while (curr)
-        {
+    void display() {
+        Song* curr = head;
+        while (curr) {
             cout << curr->title << " by " << curr->artist << " [" << curr->genre << "] (" << curr->duration << "s, ID: " << curr->id << ")\n";
             curr = curr->next;
         }
     }
 
-    vector<Song *> get_all_songs()
-    {
-        vector<Song *> result;
-        Song *curr = head;
-        while (curr)
-        {
+    vector<Song*> get_all_songs() {
+        vector<Song*> result;
+        Song* curr = head;
+        while (curr) {
             result.push_back(curr);
             curr = curr->next;
         }
@@ -165,19 +134,15 @@ int Playlist::songCounter = 1;
 // Module 2: Playback History using Stack
 //----------------------------------
 
-stack<Song *> playbackHistory;
+stack<Song*> playbackHistory;
 
-void undo_last_play(Playlist &playlist)
-{
-    if (!playbackHistory.empty())
-    {
-        Song *song = playbackHistory.top();
+void undo_last_play(Playlist& playlist) {
+    if (!playbackHistory.empty()) {
+        Song* song = playbackHistory.top();
         playbackHistory.pop();
         playlist.add_song(song->title, song->artist, song->genre, song->duration);
         cout << "Restored: " << song->title << "\n";
-    }
-    else
-    {
+    } else {
         cout << "No playback history.\n";
     }
 }
@@ -186,24 +151,20 @@ void undo_last_play(Playlist &playlist)
 // Module 3: Song Rating Tree (BST)
 //----------------------------------
 
-struct RatingNode
-{
+struct RatingNode {
     int rating;
-    vector<Song *> songs;
+    vector<Song*> songs;
     RatingNode *left, *right;
     RatingNode(int r) : rating(r), left(NULL), right(NULL) {}
 };
 
-class RatingBST
-{
+class RatingBST {
 public:
-    RatingNode *root;
+    RatingNode* root;
     RatingBST() : root(NULL) {}
 
-    RatingNode *insert(RatingNode *node, Song *song, int rating)
-    {
-        if (!node)
-        {
+    RatingNode* insert(RatingNode* node, Song* song, int rating) {
+        if (!node) {
             node = new RatingNode(rating);
             node->songs.push_back(song);
             return node;
@@ -217,26 +178,21 @@ public:
         return node;
     }
 
-    void insert_song(Song *song, int rating)
-    {
+    void insert_song(Song* song, int rating) {
         root = insert(root, song, rating);
     }
 
-    void print_inorder(RatingNode *node)
-    {
-        if (!node)
-            return;
+    void print_inorder(RatingNode* node) {
+        if (!node) return;
         print_inorder(node->left);
         cout << "Rating: " << node->rating << "\n";
-        for (Song *s : node->songs)
-        {
+        for (Song* s : node->songs) {
             cout << " - " << s->title << " by " << s->artist << "\n";
         }
         print_inorder(node->right);
     }
 
-    void display_all()
-    {
+    void display_all() {
         print_inorder(root);
     }
 };
@@ -245,17 +201,13 @@ public:
 // Module 4: Instant Lookup (HashMap)
 //----------------------------------
 
-Song *lookup_song_by_title(const string &title)
-{
-    if (songMapByTitle.count(title))
-        return songMapByTitle[title];
+Song* lookup_song_by_title(const string& title) {
+    if (songMapByTitle.count(title)) return songMapByTitle[title];
     return nullptr;
 }
 
-Song *lookup_song_by_id(int id)
-{
-    if (songMapByID.count(id))
-        return songMapByID[id];
+Song* lookup_song_by_id(int id) {
+    if (songMapByID.count(id)) return songMapByID[id];
     return nullptr;
 }
 
@@ -263,16 +215,16 @@ Song *lookup_song_by_id(int id)
 // Module 5: Sorting Module
 //----------------------------------
 
-void sort_by_title(vector<Song *> &songs)
-{
-    sort(songs.begin(), songs.end(), [](Song *a, Song *b)
-         { return a->title < b->title; });
+void sort_by_title(vector<Song*>& songs) {
+    sort(songs.begin(), songs.end(), [](Song* a, Song* b) {
+        return a->title < b->title;
+    });
 }
 
-void sort_by_duration(vector<Song *> &songs, bool ascending = true)
-{
-    sort(songs.begin(), songs.end(), [ascending](Song *a, Song *b)
-         { return ascending ? a->duration < b->duration : a->duration > b->duration; });
+void sort_by_duration(vector<Song*>& songs, bool ascending = true) {
+    sort(songs.begin(), songs.end(), [ascending](Song* a, Song* b) {
+        return ascending ? a->duration < b->duration : a->duration > b->duration;
+    });
 }
 
 //----------------------------------
@@ -288,13 +240,11 @@ void sort_by_duration(vector<Song *> &songs, bool ascending = true)
 // Module 7: System Snapshot
 //----------------------------------
 
-void export_snapshot(Playlist &playlist)
-{
-    vector<Song *> songs = playlist.get_all_songs();
+void export_snapshot(Playlist& playlist) {
+    vector<Song*> songs = playlist.get_all_songs();
     sort_by_duration(songs, false);
     cout << "Top 5 Longest Songs:\n";
-    for (int i = 0; i < min(5, (int)songs.size()); ++i)
-    {
+    for (int i = 0; i < min(5, (int)songs.size()); ++i) {
         cout << songs[i]->title << " - " << songs[i]->duration << "s\n";
     }
 }
@@ -303,13 +253,11 @@ void export_snapshot(Playlist &playlist)
 // Bonus Module 1: Offline Playlist Caching (Top-N)
 //----------------------------------
 
-void cache_top_n_songs(Playlist &playlist, int N)
-{
-    vector<Song *> songs = playlist.get_all_songs();
+void cache_top_n_songs(Playlist& playlist, int N) {
+    vector<Song*> songs = playlist.get_all_songs();
     sort_by_duration(songs, false);
     cout << "\nOffline Cache (Top " << N << " Songs):\n";
-    for (int i = 0; i < min(N, (int)songs.size()); ++i)
-    {
+    for (int i = 0; i < min(N, (int)songs.size()); ++i) {
         cout << songs[i]->title << " by " << songs[i]->artist << " (" << songs[i]->duration << "s)\n";
     }
 }
@@ -318,17 +266,14 @@ void cache_top_n_songs(Playlist &playlist, int N)
 // Bonus Module 2: Genre Rebalancer
 //----------------------------------
 
-void genre_rebalance(Playlist &playlist)
-{
+void genre_rebalance(Playlist& playlist) {
     unordered_map<string, int> genreCount;
-    vector<Song *> songs = playlist.get_all_songs();
-    for (Song *song : songs)
-    {
+    vector<Song*> songs = playlist.get_all_songs();
+    for (Song* song : songs) {
         genreCount[song->genre]++;
     }
     cout << "\nGenre Distribution:\n";
-    for (auto &entry : genreCount)
-    {
+    for (auto& entry : genreCount) {
         cout << entry.first << " : " << entry.second << " song(s)\n";
     }
 }
@@ -341,32 +286,130 @@ int main()
 {
     Playlist myPlaylist;
     RatingBST ratings;
+    int choice;
 
-    myPlaylist.add_song("On My Way", "Alan Walker", "Pop", 210);
-    myPlaylist.add_song("Faded", "Alan Walker", "Pop", 180);
-    myPlaylist.add_song("Alone", "Marshmello", "EDM", 200);
-    myPlaylist.add_song("Believer", "Imagine Dragons", "Rock", 240);
+    while (true)
+    {
+        cout << "\n==== PlayWise Playlist CLI ====\n";
+        cout << "1. Add Song\n2. Delete Song\n3. Move Song\n4. Reverse Playlist\n5. View Playlist\n6. Snapshot (Top 5 Songs)\n";
+        cout << "7. Cache Top-N Songs\n8. Genre Rebalance\n9. Rate Song\n10. View Rated Songs\n11. Lookup Song by Title\n12. Undo Last Play\n13. Play song\n14. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+        if (choice == 14)
+            break;
 
-    Song *s1 = lookup_song_by_title("On My Way");
-    if (s1)
-        ratings.insert_song(s1, 5);
-    Song *s2 = lookup_song_by_title("Faded");
-    if (s2)
-        ratings.insert_song(s2, 4);
+        if (choice == 1)
+        {
+            string title, artist, genre;
+            int duration;
+            cout << "Title: ";
+            cin.ignore();
+            getline(cin, title);
+            cout << "Artist: ";
+            getline(cin, artist);
+            cout << "Genre: ";
+            getline(cin, genre);
+            cout << "Duration (in seconds): ";
+            cin >> duration;
+            myPlaylist.add_song(title, artist, genre, duration);
+        }
+        else if (choice == 2)
+        {
+            int index;
+            cout << "Enter index to delete: ";
+            cin >> index;
+            myPlaylist.delete_song(index);
+        }
+        else if (choice == 3)
+        {
+            int from, to;
+            cout << "From index: ";
+            cin >> from;
+            cout << "To index: ";
+            cin >> to;
+            myPlaylist.move_song(from, to);
+        }
+        else if (choice == 4)
+        {
+            myPlaylist.reverse_playlist();
+        }
+        else if (choice == 5)
+        {
+            myPlaylist.display();
+        }
+        else if (choice == 6)
+        {
+            export_snapshot(myPlaylist);
+        }
+        else if (choice == 7)
+        {
+            int n;
+            cout << "Enter N: ";
+            cin >> n;
+            cache_top_n_songs(myPlaylist, n);
+        }
+        else if (choice == 8)
+        {
+            genre_rebalance(myPlaylist);
+        }
+        else if (choice == 9)
+        {
+            string title;
+            int rating;
+            cout << "Enter song title: ";
+            cin.ignore();
+            getline(cin, title);
+            cout << "Enter rating (1-5): ";
+            cin >> rating;
+            Song *s = lookup_song_by_title(title);
+            if (s)
+                ratings.insert_song(s, rating);
+            else
+                cout << "Song not found.\n";
+        }
+        else if (choice == 10)
+        {
+            ratings.display_all();
+        }
+        else if (choice == 11)
+        {
+            string title;
+            cout << "Enter title: ";
+            cin.ignore();
+            getline(cin, title);
+            Song *s = lookup_song_by_title(title);
+            if (s)
+                cout << "Found: " << s->title << " by " << s->artist << " [" << s->genre << "] (" << s->duration << "s)\n";
+            else
+                cout << "Song not found.\n";
+        }
+        else if (choice == 12)
+        {
+            undo_last_play(myPlaylist);
+        }
+        else if (choice == 13)
+        {
+            string title;
+            cout << "Enter song title to play: ";
+            cin.ignore();
+            getline(cin, title);
+            Song *s = lookup_song_by_title(title);
+            if (s)
+            {
+                cout << "Now playing: " << s->title << " by " << s->artist << "\n";
+                playbackHistory.push(s);
+            }
+            else
+            {
+                cout << "Song not found.\n";
+            }
+        }
+        else
+        {
+            cout << "Invalid choice.\n";
+        }
+    }
 
-    myPlaylist.display();
-    cout << "\n\nAfter Reversing:\n";
-    myPlaylist.reverse_playlist();
-    myPlaylist.display();
-
-    cout << "\n\nTop 3 Songs (Snapshot):\n";
-    cache_top_n_songs(myPlaylist, 3);
-
-    genre_rebalance(myPlaylist);
-
-    cout << "\n\nAll Rated Songs:\n";
-    ratings.display_all();
-
+    cout << "\nExiting PlayWise.\n";
     return 0;
 }
-
