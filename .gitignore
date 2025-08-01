@@ -1,0 +1,22 @@
+# Ignore executable files
+*.exe
+*.out
+*.o
+*.obj
+
+# Ignore debug & log files
+*.log
+*.tmp
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
