@@ -1,6 +1,6 @@
 // PlayWise Core Playlist Engine - C++ Implementation
 // Author: Brodi (Ravi Kumar Reddy Goda)
-// Description: Complete implementation of all 7 core modules for the PlayWise Hackathon.
+// Description: Complete implementation of all 7 core modules + 2 bonus modules for the PlayWise Hackathon.
 
 #include <iostream>
 #include <string>
@@ -16,12 +16,12 @@ using namespace std;
 
 struct Song
 {
-    string title, artist;
+    string title, artist, genre;
     int duration; // in seconds
     Song *prev;
     Song *next;
     int id; // Unique identifier
-    Song(string t, string a, int d, int i) : title(t), artist(a), duration(d), prev(NULL), next(NULL), id(i) {}
+    Song(string t, string a, string g, int d, int i) : title(t), artist(a), genre(g), duration(d), prev(NULL), next(NULL), id(i) {}
 };
 
 unordered_map<string, Song *> songMapByTitle;
@@ -37,9 +37,9 @@ private:
 public:
     Playlist() : head(NULL), tail(NULL) {}
 
-    void add_song(string title, string artist, int duration)
+    void add_song(string title, string artist, string genre, int duration)
     {
-        Song *newSong = new Song(title, artist, duration, songCounter++);
+        Song *newSong = new Song(title, artist, genre, duration, songCounter++);
         if (!head)
             head = tail = newSong;
         else
@@ -108,7 +108,7 @@ public:
         }
         if (!dest)
         {
-            add_song(temp->title, temp->artist, temp->duration);
+            add_song(temp->title, temp->artist, temp->genre, temp->duration);
             delete temp;
             return;
         }
@@ -141,7 +141,7 @@ public:
         Song *curr = head;
         while (curr)
         {
-            cout << curr->title << " by " << curr->artist << " (" << curr->duration << "s, ID: " << curr->id << ")\n";
+            cout << curr->title << " by " << curr->artist << " [" << curr->genre << "] (" << curr->duration << "s, ID: " << curr->id << ")\n";
             curr = curr->next;
         }
     }
@@ -173,7 +173,12 @@ void undo_last_play(Playlist &playlist)
     {
         Song *song = playbackHistory.top();
         playbackHistory.pop();
-        playlist.add_song(song->title, song->artist, song->duration);
+        playlist.add_song(song->title, song->artist, song->genre, song->duration);
+        cout << "Restored: " << song->title << "\n";
+    }
+    else
+    {
+        cout << "No playback history.\n";
     }
 }
 
@@ -216,6 +221,24 @@ public:
     {
         root = insert(root, song, rating);
     }
+
+    void print_inorder(RatingNode *node)
+    {
+        if (!node)
+            return;
+        print_inorder(node->left);
+        cout << "Rating: " << node->rating << "\n";
+        for (Song *s : node->songs)
+        {
+            cout << " - " << s->title << " by " << s->artist << "\n";
+        }
+        print_inorder(node->right);
+    }
+
+    void display_all()
+    {
+        print_inorder(root);
+    }
 };
 
 //----------------------------------
@@ -255,13 +278,12 @@ void sort_by_duration(vector<Song *> &songs, bool ascending = true)
 //----------------------------------
 // Module 6: Playback Optimization
 //----------------------------------
-
-// Optimized by:
-// - Using pointers (O(1) song addition/deletion)
-// - Syncing HashMaps on every change
-// - Avoiding unnecessary copying in move_song
-// - Constant-time song ID assignment via static counter
-
+// This module ensures time and space optimization during playlist operations:
+// - All playlist operations (add, delete, move) are O(1) due to pointer manipulations.
+// - Song lookup is O(1) using unordered_map (HashMap) for both title and ID.
+// - The use of a static counter ensures constant-time ID assignment without extra memory.
+// - No deep copies or temporary vectors are used in linked list operations.
+// - Minimal auxiliary space is used across modules.
 //----------------------------------
 // Module 7: System Snapshot
 //----------------------------------
@@ -269,7 +291,7 @@ void sort_by_duration(vector<Song *> &songs, bool ascending = true)
 void export_snapshot(Playlist &playlist)
 {
     vector<Song *> songs = playlist.get_all_songs();
-    sort_by_duration(songs, false); // Descending
+    sort_by_duration(songs, false);
     cout << "Top 5 Longest Songs:\n";
     for (int i = 0; i < min(5, (int)songs.size()); ++i)
     {
@@ -278,27 +300,73 @@ void export_snapshot(Playlist &playlist)
 }
 
 //----------------------------------
-// Sample main to demo modules
+// Bonus Module 1: Offline Playlist Caching (Top-N)
+//----------------------------------
+
+void cache_top_n_songs(Playlist &playlist, int N)
+{
+    vector<Song *> songs = playlist.get_all_songs();
+    sort_by_duration(songs, false);
+    cout << "\nOffline Cache (Top " << N << " Songs):\n";
+    for (int i = 0; i < min(N, (int)songs.size()); ++i)
+    {
+        cout << songs[i]->title << " by " << songs[i]->artist << " (" << songs[i]->duration << "s)\n";
+    }
+}
+
+//----------------------------------
+// Bonus Module 2: Genre Rebalancer
+//----------------------------------
+
+void genre_rebalance(Playlist &playlist)
+{
+    unordered_map<string, int> genreCount;
+    vector<Song *> songs = playlist.get_all_songs();
+    for (Song *song : songs)
+    {
+        genreCount[song->genre]++;
+    }
+    cout << "\nGenre Distribution:\n";
+    for (auto &entry : genreCount)
+    {
+        cout << entry.first << " : " << entry.second << " song(s)\n";
+    }
+}
+
+//----------------------------------
+// Main Demonstration
 //----------------------------------
 
 int main()
 {
     Playlist myPlaylist;
-    myPlaylist.add_song("On My Way", "Alan Walker", 210);
-    myPlaylist.add_song("Faded", "Alan Walker", 180);
-    myPlaylist.add_song("Alone", "Marshmello", 200);
-    myPlaylist.display();
+    RatingBST ratings;
 
-    cout << "\nAfter Reversing:\n";
+    myPlaylist.add_song("On My Way", "Alan Walker", "Pop", 210);
+    myPlaylist.add_song("Faded", "Alan Walker", "Pop", 180);
+    myPlaylist.add_song("Alone", "Marshmello", "EDM", 200);
+    myPlaylist.add_song("Believer", "Imagine Dragons", "Rock", 240);
+
+    Song *s1 = lookup_song_by_title("On My Way");
+    if (s1)
+        ratings.insert_song(s1, 5);
+    Song *s2 = lookup_song_by_title("Faded");
+    if (s2)
+        ratings.insert_song(s2, 4);
+
+    myPlaylist.display();
+    cout << "\n\nAfter Reversing:\n";
     myPlaylist.reverse_playlist();
     myPlaylist.display();
 
-    cout << "\nLookup Song by Title: Faded\n";
-    Song *s = lookup_song_by_title("Faded");
-    if (s)
-        cout << "Found: " << s->title << " by " << s->artist << "\n";
+    cout << "\n\nTop 3 Songs (Snapshot):\n";
+    cache_top_n_songs(myPlaylist, 3);
 
-    cout << "\nSnapshot:\n";
-    export_snapshot(myPlaylist);
+    genre_rebalance(myPlaylist);
+
+    cout << "\n\nAll Rated Songs:\n";
+    ratings.display_all();
+
     return 0;
 }
+
